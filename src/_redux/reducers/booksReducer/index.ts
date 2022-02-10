@@ -1,7 +1,7 @@
 import { bookTypes } from "../../Actiontypes/booksTypes";
 import { BooksActions, BooksState } from "../../types";
 
-const initialState: BooksState = {
+export const initialState: BooksState = {
     pending: false,
     books: [],
     totalCount: 0,

@@ -93,7 +93,7 @@ describe('App unit test', () => {
         expect(appContainer).toContainElement(errorElement);
     })
 
-    test('It should call dispatch function', async () => {
+    test('it should set search input', () => {
         store = mockStore({
             ...initialState
         });
@@ -101,15 +101,8 @@ describe('App unit test', () => {
 
         const inputElement = screen.getByRole("search-input");
 
-        await fireEvent.change(inputElement, { target: { value: 'search' } })
-        await fireEvent.keyPress(inputElement, { key: 'enter', charCode: 13 })
+        fireEvent.change(inputElement, { target: { value: 'search' } })
         expect(inputElement).toHaveValue('search');
-
-        const dispatchMock = jest.fn();
-        dispatchMock.mockImplementation(action => store.dispatch(action))
-
-        expect(dispatchMock).toHaveBeenCalledTimes(0);
-
     })
 })
 
