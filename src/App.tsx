@@ -1,32 +1,39 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import ReactPaginate from 'react-paginate';
+import { IBook } from './models/IBook';
 
 import Item from './components/item';
 
-import { fetchBooksRequest } from './_redux/actions/booksActions';
-import { RootState } from './_redux/reducers/rootReducer';
+import { getBookList } from './api/book';
 
 import { ERROR_MESSAGE_API, ERROR_MESSAGE_SERVER, PAGE_COUNT } from './constant';
 
 import CloseIcon from './close.svg';
-
 import "./App.scss";
 
 const App = () => {
   const [keyword, setKeyword] = useState('');
-  const dispatch = useDispatch();
-  const { pending, books, totalCount, error } = useSelector((state: RootState) => state.books);
+  const [books, setBooks] = useState<IBook[]>([]);
+  const [pending, setPending] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [error, setError] = useState('');
 
-  const handleKeyDown = (event: any) => {
-    if (event.key === 'Enter' && keyword !== '') {
-      dispatch(fetchBooksRequest({ keyword: keyword, startIndex: 0 }));
-    }
+  const searchBook = async (keyword: string, startIndex: number) => {
+    setPending(true);
+    const { books, totalCount, error } = await getBookList(keyword, startIndex);
+    setPending(false);
+    setBooks(books);
+    setTotalCount(totalCount);
+    setError(error);
+
   }
 
-  const onSelectPage = (pageNumber: number) => {
-    if (keyword !== '') dispatch(fetchBooksRequest({ keyword: keyword, startIndex: pageNumber * PAGE_COUNT }));
-  }
+  const handleKeyDown = (event: any) => (event.key === 'Enter' && keyword !== '') && searchBook(keyword, 0)
+
+  const onSelectPage = (pageNumber: number) => (keyword !== '') && searchBook(keyword, pageNumber * PAGE_COUNT)
+
+
+
 
   return (
     <div className='app' role="app-container">
@@ -41,18 +48,18 @@ const App = () => {
         />
 
         {keyword && keyword !== '' && (
-          <span onClick={() => setKeyword('')}>
+          <span onClick={() => setKeyword('')} role='close-button'>
             <img src={CloseIcon} alt='' />
           </span>
         )}
       </div>
       {pending ? (
         <div className='loader' role='loader' />
-      ) : error ? (
+      ) : error !== '' ? (
         <div role='error'>{ERROR_MESSAGE_SERVER}</div>
       ) : (
         books?.length > 0 ? books.map((book, index) => (
-          <Item book={book} index={index} key={book.id} />
+          <Item book={book} index={index} key={index} />
         )) : (
           <div role='error'>{ERROR_MESSAGE_API}</div>
         )

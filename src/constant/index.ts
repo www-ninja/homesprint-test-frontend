@@ -1,5 +1,7 @@
 import { IBook } from "../models/IBook";
 
+export const API_URL = 'http://localhost:8000/api'
+
 export const SampleBook: IBook = {
     kind: "books#volume",
     id: "EZ5VAAAAMAAJ",
